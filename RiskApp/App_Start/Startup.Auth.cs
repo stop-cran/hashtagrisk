@@ -58,11 +58,11 @@ namespace RiskApp
             //   appId: "",
             //   appSecret: "");
 
-            //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
-            //{
-            //    ClientId = "",
-            //    ClientSecret = ""
-            //});
+            app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
+            {
+                ClientId = "260893344565-9899gcd8ttia3peg6s4f8rb0s5l5ilad.apps.googleusercontent.com",
+                ClientSecret = "Jm5xe1DCsyN-XVQSqppE48XH"
+            });
         }
     }
 }
