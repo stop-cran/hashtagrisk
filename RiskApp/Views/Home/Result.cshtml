@@ -1,0 +1,38 @@
+﻿@using Chart.Mvc.ComplexChart;
+@using Chart.Mvc.Extensions
+
+@model RiskApp.Models.RiskResult
+@{
+    ViewBag.Title = "Calculate risks";
+}
+
+@Scripts.Render("~/bundles/chart")
+
+<div class="jumbotron">
+    <h1>Немоделируемые риски</h1>
+    <p class="lead">Результаты расчёта.</p>
+    <p><a href="http://hashtagrisk.ru" class="btn btn-primary btn-lg">Узнать больше&raquo;</a></p>
+</div>
+
+<div>
+    <p>Возможные рисковые события:</p>
+    <div>
+        @foreach (var v in Model.Results)
+        {
+            <div>
+                <p style="background-color:@v.PointColor;color:@v.PointColor;width:50">_</p><p>@v.Label</p>
+            </div>
+        }
+    </div>
+    @{
+        var chart = new LineChart();
+        chart.ComplexData.Labels.AddRange(Model.Mesh);
+        chart.ComplexData.Datasets.AddRange(Model.Results);
+    }
+
+    <hr />
+    <p>Вероятность убытка, %</p>
+    <canvas id="plotCanvas" width="1000" height="600"></canvas>
+    <p style="align-content:center">Величина убытка</p>
+    @Html.CreateChart("plotCanvas", chart);
+</div>

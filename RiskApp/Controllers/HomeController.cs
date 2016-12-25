@@ -1,6 +1,10 @@
-﻿using System;
+﻿using RiskApp.Calculations;
+using RiskApp.Models;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -25,6 +29,12 @@ namespace RiskApp.Controllers
             ViewBag.Message = "Your contact page.";
 
             return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(HttpPostedFileBase file)
+        {
+            return View("Result", await new Calculator().CalculateAsync(file));
         }
     }
 }
