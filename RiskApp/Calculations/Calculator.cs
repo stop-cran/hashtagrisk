@@ -12,11 +12,6 @@ namespace RiskApp.Calculations
 {
     public class Calculator
     {
-        static int Factorial(int i)
-        {
-            return i <= 1 ? 1 : i * Factorial(i - 1);
-        }
-
         public Task<RiskResult> CalculateAsync(HttpPostedFileBase file)
         {
             return Task.Run(() => Calculate(file));
@@ -53,6 +48,7 @@ namespace RiskApp.Calculations
                 {
                     Factor = factors[(int)row.Field<double>(0) - 1],
                     Event = events[(int)row.Field<double>(1) - 1],
+                    Propability = row.Field<double>(2)
                 })
                 .ToList();
 
@@ -64,38 +60,56 @@ namespace RiskApp.Calculations
             });
         }
 
+        static readonly Color[] colors = typeof(Color).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Select(p => p.GetValue(null)).Cast<Color>().ToArray();
+
+
         public RiskResult Calculate(RiskModel model)
         {
+            var datas = (from factor in model.Factors
+                         select new
+                         {
+                             name = factor.Name,
+                             color = colors[factor.Id + 3],
+                             data = (from r in model.Relations
+                                     where r.Factor.Id == factor.Id
+                                     select EnumerableExtensions.Fix(r.Event.Event, ev => ev.Convolve(r.Event.Event))
+                                         .Take((int)Math.Ceiling(4 * factor.Frequency))
+                                         .Select((rr, i) => rr.ApplyWeight(r.Propability * factor.Probability(i)))
+                                         .Aggregate((r1, r2) => r1.Sum(r2)))
+                                     .Aggregate((r1, r2) => r1.Sum(r2).Sum(r1.Convolve(r2)))
+                                     .ApplyWeight(1).ρNet
+                                     .Scan((double x, double y) => x + y)
+                                     .Select(x => Math.Round(x * 10, 2))
+                                     .TakeWhile(x => x < 100)
+                                     .SkipEach(5)
+                                     .ToList()
+                         })
+                        .ToList();
+
+            var maxCount = datas.Max(data => data.data.Count);
+
+            foreach (var data in datas)
+                data.data.AddRange(Enumerable.Repeat(100d, maxCount - data.data.Count));
+
             return new RiskResult
             {
-                Mesh = Enumerable.Range(0, 100).Select(i => (i * 0.1).ToString()).ToList(),
-                Results = (from ev in model.Events
-                           let color = (Color)typeof(Color).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)[ev.Id + 3].GetValue(null)
+                Mesh = Enumerable.Range(0, maxCount)
+                    .Select(i => (i * 0.5).ToString()).ToList(),
+                Results = (from data in datas
+                           let r = data.color.R * 2 / 3
+                           let g = data.color.G * 2 / 3
+                           let b = data.color.B * 2 / 3
                            select new ComplexDataset
                            {
-                               Label = ev.Name,
-                               Data = (from r in model.Relations
-                                       where r.Event.Id == ev.Id
-                                       select Enumerable.Range(0, (int)(4 * r.Factor.Frequency))
-                                           .Aggregate(new List<RiskEvent> { r.Event.Event },
-                                               (ri, i) => ri.Concat(new[] { ri.Last().Convolve(r.Event.Event) }).ToList())
-                                           .Select((rr, i) => rr.ApplyWeight(Math.Exp(-r.Factor.Frequency) * Math.Pow(r.Factor.Frequency, i) / Factorial(i)))
-                                           .Aggregate((r1, r2) => r1.Sum(r2)))
-                                    .Aggregate((r1, r2) => r1.Sum(r2))
-                                    .ApplyWeight(1).ρNet
-                                    .Aggregate(new List<double>(), (l, d) =>
-                                    {
-                                        l.Add(l.LastOrDefault() + d * 0.1);
-                                        return l;
-                                    })
-                                    .Select(x => Math.Round(x * 100, 2))
-                                    .ToList(),
-                               FillColor = $"rgba({color.R / 2},{color.G / 2},{color.B / 2},0.2)",
-                               StrokeColor = $"rgba({color.R / 2},{color.G / 2},{color.B / 2},1)",
-                               PointColor = $"rgba({color.R / 2},{color.G / 2},{color.B / 2},1)",
+                               Label = data.name,
+                               Data = data.data,
+                               FillColor = $"rgba({r},{g},{b},0.2)",
+                               StrokeColor = $"rgba({r},{g},{b},1)",
+                               PointColor = $"rgba({r},{g},{b},1)",
                                PointStrokeColor = "#fff",
                                PointHighlightFill = "#fff",
-                               PointHighlightStroke = $"rgba({color.R / 2},{color.G / 2},{color.B / 2},1)"
+                               PointHighlightStroke = $"rgba({r},{g},{b},1)"
                            }).ToList(),
             };
         }

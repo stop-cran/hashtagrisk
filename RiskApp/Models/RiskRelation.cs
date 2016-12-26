@@ -6,5 +6,6 @@ namespace RiskApp.Models
     {
         public RiskFactor Factor { get; set; }
         public RiskEvent Event { get; set; }
+        public double Propability { get; set; } 
     }
 }

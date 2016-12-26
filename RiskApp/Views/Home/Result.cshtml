@@ -15,24 +15,26 @@
 </div>
 
 <div>
-    <p>Возможные рисковые события:</p>
-    <div>
-        @foreach (var v in Model.Results)
-        {
-            <div>
-                <p style="background-color:@v.PointColor;color:@v.PointColor;width:50">_</p><p>@v.Label</p>
-            </div>
-        }
-    </div>
-    @{
-        var chart = new LineChart();
-        chart.ComplexData.Labels.AddRange(Model.Mesh);
-        chart.ComplexData.Datasets.AddRange(Model.Results);
+    <h2>Рисковые факторы:</h2>
+    <br />
+    <br />
+    @foreach (var v in Model.Results)
+    {
+        <p style="background-color:@v.PointColor;color:rgb(255,255,255)">  @v.Label</p>
+        <br />
     }
+</div>
+@{
+    var chart = new LineChart();
+    chart.ComplexData.Labels.AddRange(Model.Mesh);
+    chart.ComplexData.Datasets.AddRange(Model.Results);
+}
 
-    <hr />
-    <p>Вероятность убытка, %</p>
-    <canvas id="plotCanvas" width="1000" height="600"></canvas>
-    <p style="align-content:center">Величина убытка</p>
-    @Html.CreateChart("plotCanvas", chart);
+<hr />
+<br />
+<h2>Распределение вероятностей возможных убытков</h2>
+<p>Вероятность получения убытка меньше заданного, %</p>
+<canvas id="plotCanvas" width="1000" height="600"></canvas>
+<p style="align-content:center">Величина убытка</p>
+@Html.CreateChart("plotCanvas", chart);
 </div>

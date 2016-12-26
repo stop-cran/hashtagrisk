@@ -5,7 +5,7 @@
 <div class="jumbotron">
     <h1>Расчёт немоделируемых рисков</h1>
     <p class="lead">Загрузите входные данные в формате Excel для расчёта.</p>
-    <p><a href="http://hashtagrisk.ru" class="btn btn-primary btn-lg">Подробная инструкция &raquo;</a></p>
+    <p>@Html.ActionLink("Скачать образец »", "DownloadSample", "", new { @class = "btn btn-primary btn-lg" })</p>
 </div>
 
 <div class="row">
@@ -13,9 +13,9 @@
     {
         <div>
             <span class="btn btn-default btn-file">
-                Загрузить файл с описанием <input type="file" name="file">
+                Загрузить файл с описанием<br /><br /><input type="file" name="file">
             </span>
-            <input type="submit" class="btn btn-primary btn-lg" />
+            <input type="submit" class="btn btn-primary btn-lg" value="Произвести расчёт" />
         </div>
     }
 </div>

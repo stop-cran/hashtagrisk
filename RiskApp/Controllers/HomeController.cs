@@ -1,9 +1,5 @@
 ﻿using RiskApp.Calculations;
-using RiskApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -35,6 +31,12 @@ namespace RiskApp.Controllers
         public async Task<ActionResult> Create(HttpPostedFileBase file)
         {
             return View("Result", await new Calculator().CalculateAsync(file));
+        }
+
+        public FileResult DownloadSample()
+        {
+            return File(Assembly.GetExecutingAssembly().GetManifestResourceStream("RiskApp.Риски1.xls"),
+                System.Net.Mime.MediaTypeNames.Application.Octet, "Риски1.xls");
         }
     }
 }
