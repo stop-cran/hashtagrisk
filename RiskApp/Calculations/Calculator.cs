@@ -81,7 +81,7 @@ namespace RiskApp.Calculations
                                      .ApplyWeight(1).ρNet
                                      .Scan((double x, double y) => x + y)
                                      .Select(x => Math.Round(x * 10, 2))
-                                     .TakeWhile(x => x < 100)
+                                     .TakeWhile(x => x < 99.5)
                                      .SkipEach(5)
                                      .ToList()
                          })
